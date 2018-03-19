@@ -52,9 +52,25 @@ class AuthorsController extends AppController
         if ($this->request->is('post')) {
             $author = $this->Authors->patchEntity($author, $this->request->getData());
             if ($this->Authors->save($author)) {
+                // Check for ajax
+                if ($this->request->is('ajax')) {
+                    return $this->response->withType('application/json')
+                        ->withStringBody(json_encode([
+                            'status' => 'success',
+                            'message' => 'The author has been saved.'
+                        ]));
+                }
                 $this->Flash->success(__('The author has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
+            }
+            // Check for ajax
+            if ($this->request->is('ajax')) {
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'status' => 'error',
+                        'message' => 'The author could not be saved. Please, try again.'
+                    ]));
             }
             $this->Flash->error(__('The author could not be saved. Please, try again.'));
         }

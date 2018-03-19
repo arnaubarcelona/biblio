@@ -267,10 +267,12 @@ class BooksController extends AppController
 
                 if (is_null($author)) {
                     $response['author'] = [
+                        'name' => $authorName,
                         'not_exist' => true
                     ];
                 } else {
                     $response['author'] = [
+                        'name' => $authorName,
                         'id' => $author->id
                     ];
                 }
@@ -285,16 +287,18 @@ class BooksController extends AppController
                         ->first();
 
                     if (is_null($authorType)) {
-                        $response['author_types'] = [
+                        $response['author_type'] = [
+                            'name' => $authorTypeName,
                             'not_exist' => true
                         ];
                     } else {
-                        $response['author_types'] = [
+                        $response['author_type'] = [
+                            'name' => $authorTypeName,
                             'id' => $authorType->id
                         ];
                     }
                 } else {
-                    $response['author_types'] = [
+                    $response['author_type'] = [
                         'id' => '1'
                     ];
                 }
