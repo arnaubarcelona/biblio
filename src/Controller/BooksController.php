@@ -59,7 +59,7 @@ class BooksController extends AppController
 
         $book = $this->Books->newEntity();
         if ($this->request->is('post')) {
-            debug($this->request->getData());exit;
+            // debug($this->request->getData());exit;
             $book = $this->Books->patchEntity($book, $this->request->getData());
             if ($this->Books->save($book)) {
                 // Save authorities books
