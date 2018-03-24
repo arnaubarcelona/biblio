@@ -53,6 +53,25 @@ class AuthoritiesController extends AppController
     {
         $authority = $this->Authorities->newEntity();
         if ($this->request->is('post')) {
+            if ($this->request->is('ajax')) {
+                $isAuthoritiesSaved = $this->upsertAuthorities($this->request->getData());
+
+                if ($isAuthoritiesSaved) {
+                    return $this->response->withType('application/json')
+                        ->withStringBody(json_encode([
+                            'status' => 'success',
+                            'message' => 'The authority has been saved.',
+                            'data' => json_decode(json_encode($isAuthoritiesSaved), true)
+                        ]));
+                }
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'status' => 'error',
+                        'message' => 'The authority could not be saved. Please, try again.'
+                    ]));
+            }
+
             $authority = $this->Authorities->patchEntity($authority, $this->request->getData());
             if ($this->Authorities->save($authority)) {
                 $this->Flash->success(__('The authority has been saved.'));
@@ -112,5 +131,27 @@ class AuthoritiesController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function upsertAuthorities($requestData)
+    {
+        $authority = $this->Authorities->find()
+            ->where([
+                'author_id' => $requestData['author_id'],
+                'author_type_id' => $requestData['author_type_id'],
+            ])
+            ->first();
+
+        if (is_null($authority)) {
+            $authority = $this->Authorities->newEntity();
+            $authority = $this->Authorities->patchEntity($authority, $requestData);
+            if ($this->Authorities->save($authority)) {
+                return $authority;
+            }
+
+            return false;
+        }
+
+        return $authority;
     }
 }

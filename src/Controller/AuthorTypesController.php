@@ -52,9 +52,26 @@ class AuthorTypesController extends AppController
         if ($this->request->is('post')) {
             $authorType = $this->AuthorTypes->patchEntity($authorType, $this->request->getData());
             if ($this->AuthorTypes->save($authorType)) {
+                // Check for ajax
+                if ($this->request->is('ajax')) {
+                    return $this->response->withType('application/json')
+                        ->withStringBody(json_encode([
+                            'status' => 'success',
+                            'message' => 'The author type has been saved.',
+                            'data' => json_decode(json_encode($authorType), true)
+                        ]));
+                }
                 $this->Flash->success(__('The author type has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
+            }
+            // Check for ajax
+            if ($this->request->is('ajax')) {
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'status' => 'error',
+                        'message' => 'The author type could not be saved. Please, try again.'
+                    ]));
             }
             $this->Flash->error(__('The author type could not be saved. Please, try again.'));
         }

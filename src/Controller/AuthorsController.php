@@ -57,7 +57,8 @@ class AuthorsController extends AppController
                     return $this->response->withType('application/json')
                         ->withStringBody(json_encode([
                             'status' => 'success',
-                            'message' => 'The author has been saved.'
+                            'message' => 'The author has been saved.',
+                            'data' => json_decode(json_encode($author), true)
                         ]));
                 }
                 $this->Flash->success(__('The author has been saved.'));

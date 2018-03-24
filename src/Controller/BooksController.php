@@ -249,6 +249,7 @@ class BooksController extends AppController
         if ($this->request->is('ajax')) {
             $this->loadModel('Authors');
             $this->loadModel('AuthorTypes');
+            $this->loadModel('Authorities');
 
             $requestData = $this->request->getData('data');
             $split = explode('[', $requestData['text']);
@@ -301,6 +302,26 @@ class BooksController extends AppController
                     $response['author_type'] = [
                         'id' => '1'
                     ];
+                }
+
+                // Check for authorities
+                if (!isset($response['author']['not_exist']) && !isset($response['author_type']['not_exist'])) {
+                    $authority = $this->Authorities->find()
+                        ->where([
+                            'author_id' => $response['author']['id'],
+                            'author_type_id' => $response['author_type']['id'],
+                        ])
+                        ->first();
+
+                    if (is_null($authority)) {
+                        $response['authorities'] = [
+                            'found' => false
+                        ];
+                    } else {
+                        $response['authorities'] = [
+                            'found' => true
+                        ];
+                    }
                 }
             } else {
                 $response['message'] = 'Text is not inserted in proper format';
