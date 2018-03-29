@@ -59,7 +59,6 @@ class BooksController extends AppController
 
         $book = $this->Books->newEntity();
         if ($this->request->is('post')) {
-            // debug($this->request->getData());exit;
             $book = $this->Books->patchEntity($book, $this->request->getData());
             if ($this->Books->save($book)) {
                 // Save authorities books
@@ -215,9 +214,67 @@ class BooksController extends AppController
     public function saveAuthoritiesBooks($book_id, $authority_ids)
     {
         $this->loadModel('AuthoritiesBooks');
+        $this->loadModel('Authorities');
+        $this->loadModel('Authors');
+        $this->loadModel('AuthorTypes');
 
         foreach ($authority_ids as $key => $authority_id) {
             $saveData = [];
+
+            $authorityId = $this->Authorities->find()
+                ->where([
+                    'id' => $authority_id,
+                ])
+                ->first();
+
+            if ($authorityId == null) {
+                $split = explode('[', $authority_id);
+
+                if (count($split) > 0 && isset($split[0]) && !empty($split[0])) {
+                    $author = $this->Authors->find()
+                        ->where([
+                            'name' => trim($split[0]),
+                        ])
+                        ->first();
+
+                    if (!$author) {
+                        return false;                            
+                    }
+
+                    $authorId = $author->id;
+
+                    if (isset($split[1]) && !empty($split[1])) {
+                        $split[1] = '[' . $split[1];
+
+                        $authorType = $this->AuthorTypes->find()
+                            ->where([
+                                'name' => $split[1],
+                            ])
+                            ->first();
+
+                        if (!$authorType) {
+                            return false;
+                        }
+
+                        $authorTypeId = $authorType->id;
+                    } else {
+                        $authorTypeId = 1;
+                    }
+
+                    $authorities = $this->Authorities->find()
+                        ->where([
+                            'author_id' => $authorId,
+                            'author_type_id' => $authorTypeId,
+                        ])
+                        ->first();
+                    
+                    if (!$authorities) {
+                        return false;
+                    }
+
+                    $authority_id = $authorities->id;
+                }
+            }
 
             $authorityBook = $this->AuthoritiesBooks->find()
                 ->where([
