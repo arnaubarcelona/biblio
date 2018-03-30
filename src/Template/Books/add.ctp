@@ -54,7 +54,7 @@
             ]);
             echo $this->Form->control('cdu_id', [
                 'type' => 'select',
-                'class' => 'multiple_autocomplete',
+                'class' => 'single_autocomplete',
                 'options' => $formattedCdus
             ]);
             echo $this->Form->control('isbn');
@@ -81,7 +81,12 @@
             echo $this->Form->control('editorials._ids', ['options' => $editorials]);
             echo $this->Form->control('languages._ids', ['options' => $languages]);
             echo $this->Form->control('levels._ids', ['options' => $levels]);
-            echo $this->Form->control('subjects._ids', ['options' => $subjects]);
+            echo $this->Form->control('subjects._ids', [
+                'multiple' => true,
+                'type' => 'select',
+                'class' => 'multi_subject_books',
+                'options' => $subjects
+            ]);
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

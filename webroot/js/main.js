@@ -22,6 +22,26 @@ $(document).ready(function () {
             checkAuthorTypesExists(e.params.data, e.target);
         }
     });
+
+    $('.single_autocomplete').select2();
+
+    $('.multi_subject_books').select2({
+        tags: true,
+        tokenSeparators: [';'],
+        createTag: function (params) {
+            return {
+                id: params.term,
+                text: params.term,
+                // add indicator flag
+                isNew : true
+            };
+        }
+    }).on("select2:select", function(e) {
+        if(e.params.data.isNew) {
+            // Add new subjects if not exists
+            checkSubjectExists(e.params.data, e.target);
+        }
+    });
 });
 
 function checkAuthorTypesExists(data, targetObj)
@@ -171,4 +191,52 @@ function addNewAuthorities(authorId, authorTypeId, callBack)
     }).fail(function() {
         callBack(result);
     });
+}
+
+function checkSubjectExists(data, targetObj)
+{
+    var subjectExists = false;
+
+    if (data.text != '') {
+        $.ajax({
+            url: app_path + "subjects/alreadyExists",
+            type: 'post',
+            data: {
+                'name': data.text
+            },
+            success: function (result) {
+                if (result) {
+                    if (confirm(data.text + " is not on the list of subjects, do you want to add it?") == true) {
+                        addSubject(data, targetObj, function (result) {
+                            $(targetObj).find('option[data-select2-tag="true"]').last().val(result.data.id);
+                        });
+                    } else {
+                        // Remove last element from dropdown
+                        $(targetObj).find('option[data-select2-tag="true"]').last().remove();
+                    }
+                } else {
+                    $(targetObj).find('option[data-select2-tag="true"]').last().remove();
+                }
+            }
+        });
+    } else {
+        $(targetObj).find('option[data-select2-tag="true"]').last().remove();
+    }
+}
+
+function addSubject(data, targetObj, callBack)
+{
+    if (data.text != '') {
+        $.ajax({
+            url: app_path + "subjects/add",
+            type: 'post',
+            data: {
+                'name': data.text
+            }
+        }).done(function(result) {
+            callBack(result);
+        }).fail(function() {
+            callBack(result);
+        });
+    }
 }

@@ -52,9 +52,26 @@ class SubjectsController extends AppController
         if ($this->request->is('post')) {
             $subject = $this->Subjects->patchEntity($subject, $this->request->getData());
             if ($this->Subjects->save($subject)) {
+                // Check for ajax
+                if ($this->request->is('ajax')) {
+                    return $this->response->withType('application/json')
+                        ->withStringBody(json_encode([
+                            'status' => 'success',
+                            'message' => __('The subject has been saved.'),
+                            'data' => json_decode(json_encode($subject), true)
+                        ]));
+                }
                 $this->Flash->success(__('The subject has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
+            }
+            // Check for ajax
+            if ($this->request->is('ajax')) {
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'status' => 'error',
+                        'message' => __('The subject could not be saved. Please, try again.')
+                    ]));
             }
             $this->Flash->error(__('The subject could not be saved. Please, try again.'));
         }
@@ -105,5 +122,25 @@ class SubjectsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function alreadyExists()
+    {
+        $response = [
+            'status' => 'error',
+            'message' => 'Method not allowed'
+        ];
+
+        if ($this->request->is('ajax')) {
+            $name = $this->request->getData('name');
+
+            $subject = $this->Subjects->find()->where(['name' => $name]);
+
+            if ($subject) {
+                return $this->response->withStringBody(true);
+            }
+        }
+
+        return $this->response->withStringBody(false);
     }
 }
