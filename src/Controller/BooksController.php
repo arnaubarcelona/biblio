@@ -55,6 +55,8 @@ class BooksController extends AppController
         // Added by IV[14-03-2018]
         $this->loadModel('Authorities');
         $this->loadModel('AuthoritiesBooks');
+        $this->loadModel('Subjects');
+        $this->loadModel('BooksSubjects');
         $formattedAuthorities = [];
 
         $book = $this->Books->newEntity();
@@ -151,7 +153,23 @@ class BooksController extends AppController
         $editorials = $this->Books->Editorials->find('list', ['limit' => 200]);
         $languages = $this->Books->Languages->find('list', ['limit' => 200]);
         $levels = $this->Books->Levels->find('list', ['limit' => 200]);
-        $subjects = $this->Books->Subjects->find('list', ['limit' => 200]);
+        $booksSubjects = $this->BooksSubjects->find('list', [
+            'keyField' => 'book_id',
+            'valueField' => 'id',
+            'groupField' => 'subject_id'
+        ])->toArray();
+        $subjects = $this->Subjects->find('list')->limit(500)->toArray();
+
+        if (!empty($subjects) && !empty($booksSubjects)) {
+            foreach ($subjects as $subjectId => &$subjectName) {
+                if (isset($booksSubjects[$subjectId]) && !empty($booksSubjects[$subjectId])) {
+                    $subjectName .= ' (' . count($booksSubjects[$subjectId]) . ')';
+                } else {
+                    $subjectName .= ' (0)';
+                }
+            }
+        }
+
         $this->set(compact('book', 'cdus', 'formats', 'collections', 'editionPlaces', 'locations', 'catalogueStates', 'conservationStates', 'formattedCdus', 'formattedAuthorities', 'editorials', 'languages', 'levels', 'subjects'));
     }
 

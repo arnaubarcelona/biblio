@@ -43,8 +43,10 @@ class SubjectsTable extends Table
         $this->belongsToMany('Books', [
             'foreignKey' => 'subject_id',
             'targetForeignKey' => 'book_id',
-            'joinTable' => 'books_subjects'
+            'joinTable' => 'books'
         ]);
+
+        $this->hasMany('BooksSubjects');
     }
 
     /**

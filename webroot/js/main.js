@@ -6,6 +6,7 @@ if (location.hostname == 'localhost') {
 
 $(document).ready(function () {
     $('.multiple_autocomplete').select2({
+        minimumInputLength: 200,
         tags: true,
         tokenSeparators: [';'],
         createTag: function (params) {
@@ -26,6 +27,7 @@ $(document).ready(function () {
     $('.single_autocomplete').select2();
 
     $('.multi_subject_books').select2({
+        minimumInputLength: 200,
         tags: true,
         tokenSeparators: [';'],
         createTag: function (params) {
